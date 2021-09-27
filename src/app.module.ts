@@ -5,6 +5,9 @@ import { GraphQLModule } from '@nestjs/graphql';
 import { TypeOrmModule } from '@nestjs/typeorm';
 import { PodcastModule } from './podcast/podcast.module';
 import { UserModule } from './user/user.module';
+import { Podcast } from './podcast/entity/podcast.entity';
+import { User } from './user/entity/user.entity';
+import { Episode } from './podcast/entity/episode.entity';
 
 @Module({
   imports: [
@@ -33,6 +36,7 @@ import { UserModule } from './user/user.module';
       database: process.env.DB_NAME,
       synchronize: true,
       logging: true,
+      entities: [Podcast, Episode, User],
     }),
     PodcastModule,
     UserModule,
