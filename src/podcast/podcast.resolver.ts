@@ -1,10 +1,19 @@
-import { Mutation, Query, Resolver } from '@nestjs/graphql';
+import { Args, Mutation, Query, Resolver } from '@nestjs/graphql';
+import {
+  CreatePodcastInput,
+  CreatePodcastOutput,
+} from './dto/create-podcast.dto';
+import { PodcastService } from './podcast.service';
 
 @Resolver()
 export class PodcastResolver {
+  constructor(private readonly podcastService: PodcastService) {}
+
   @Mutation((returns) => Boolean)
-  createPodcast(): boolean {
-    return true;
+  async createPodcast(
+    @Args('input') input: CreatePodcastInput,
+  ): Promise<CreatePodcastOutput> {
+    return this.podcastService.createPodcast(input);
   }
 
   @Query((returns) => Boolean)
