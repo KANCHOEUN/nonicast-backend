@@ -3,27 +3,30 @@ import {
   CreatePodcastInput,
   CreatePodcastOutput,
 } from './dto/create-podcast.dto';
+import { PodcastOutput, PodcastsOutput } from './dto/podcast.dto';
+import { Episode } from './entity/episode.entity';
+import { Podcast } from './entity/podcast.entity';
 import { PodcastService } from './podcast.service';
 
-@Resolver()
+@Resolver((of) => Podcast)
 export class PodcastResolver {
   constructor(private readonly podcastService: PodcastService) {}
 
-  @Mutation((returns) => Boolean)
+  @Mutation((returns) => CreatePodcastOutput)
   async createPodcast(
     @Args('input') input: CreatePodcastInput,
   ): Promise<CreatePodcastOutput> {
     return this.podcastService.createPodcast(input);
   }
 
-  @Query((returns) => Boolean)
-  getPodcasts(): boolean {
-    return true;
+  @Query((returns) => PodcastsOutput)
+  getPodcasts(): Promise<PodcastsOutput> {
+    return this.podcastService.getPodcasts();
   }
 
   @Query((returns) => Boolean)
-  getPodcast(): boolean {
-    return true;
+  getPodcast(@Args('id') id: number): Promise<PodcastOutput> {
+    return this.podcastService.getPodcast(id);
   }
 
   @Mutation((returns) => Boolean)
@@ -42,7 +45,7 @@ export class PodcastResolver {
   }
 }
 
-@Resolver()
+@Resolver((of) => Episode)
 export class EpisodeResolver {
   @Mutation((returns) => Boolean)
   createEpisode(): boolean {
