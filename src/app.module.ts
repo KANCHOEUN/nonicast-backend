@@ -1,4 +1,4 @@
-import { Module } from '@nestjs/common';
+import { MiddlewareConsumer, Module, RequestMethod } from '@nestjs/common';
 import * as Joi from 'joi';
 import { ConfigModule } from '@nestjs/config';
 import { GraphQLModule } from '@nestjs/graphql';
@@ -8,6 +8,8 @@ import { UserModule } from './user/user.module';
 import { Podcast } from './podcast/entity/podcast.entity';
 import { User } from './user/entity/user.entity';
 import { Episode } from './podcast/entity/episode.entity';
+import { JwtModule } from './jwt/jwt.module';
+import { JwtMiddleware } from './jwt/jwt.middleware';
 
 @Module({
   imports: [
@@ -26,6 +28,12 @@ import { Episode } from './podcast/entity/episode.entity';
     }),
     GraphQLModule.forRoot({
       autoSchemaFile: true,
+      context: ({ req }) => {
+        return { user: req['user'] };
+      },
+    }),
+    JwtModule.forRoot({
+      privateKey: process.env.PRIVATE_KEY,
     }),
     TypeOrmModule.forRoot({
       type: 'postgres',
@@ -44,4 +52,11 @@ import { Episode } from './podcast/entity/episode.entity';
   controllers: [],
   providers: [],
 })
-export class AppModule {}
+export class AppModule {
+  configure(consumer: MiddlewareConsumer) {
+    consumer.apply(JwtMiddleware).forRoutes({
+      path: '/graphql',
+      method: RequestMethod.POST,
+    });
+  }
+}

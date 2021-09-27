@@ -27,7 +27,7 @@ export class User extends CoreEntity {
   @IsEmail()
   email: string;
 
-  @Column()
+  @Column({ select: true })
   @Field((type) => String)
   @IsString()
   password: string;
@@ -49,6 +49,16 @@ export class User extends CoreEntity {
       } catch (e) {
         throw new InternalServerErrorException();
       }
+    }
+  }
+
+  async checkPassword(confirmPassword: string): Promise<boolean> {
+    try {
+      const ok = await bcrypt.compare(confirmPassword, this.password);
+      return ok;
+    } catch (error) {
+      console.log(error);
+      throw new InternalServerErrorException();
     }
   }
 }

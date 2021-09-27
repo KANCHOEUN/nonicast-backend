@@ -3,6 +3,8 @@ import {
   CreateAccountInput,
   CreateAccountOutput,
 } from './dto/create-account.dto';
+import { LoginInput, LoginOutput } from './dto/login.dto';
+import { UserOutput } from './dto/user.dto';
 import { UserService } from './user.service';
 
 @Resolver()
@@ -15,15 +17,15 @@ export class UserResolver {
     return this.userService.createAccount(createAccountInput);
   }
 
-  @Mutation((returns) => Boolean)
-  login(): boolean {
-    return true;
+  @Mutation((returns) => LoginOutput)
+  login(@Args('input') loginInput: LoginInput): Promise<LoginOutput> {
+    return this.userService.login(loginInput);
   }
 
-  @Query((returns) => Boolean)
-  me(): boolean {
-    return true;
-  }
+  // @Query((returns) => Boolean)
+  // me(): Promise<UserOutput> {
+  //   return true;
+  // }
 
   @Query((returns) => Boolean)
   getProfile(): boolean {
