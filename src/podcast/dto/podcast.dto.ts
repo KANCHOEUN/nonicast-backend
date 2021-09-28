@@ -4,12 +4,12 @@ import { Podcast } from '../entity/podcast.entity';
 
 @ObjectType()
 export class PodcastsOutput extends CoreOutput {
-  @Field((type) => [Podcast])
+  @Field((type) => [Podcast], { nullable: true })
   podcasts?: Podcast[];
 }
 
 @ObjectType()
 export class PodcastOutput extends CoreOutput {
-  @Field((type) => Podcast)
+  @Field((type) => Podcast, { nullable: true })
   podcast?: Podcast;
 }

@@ -1,9 +1,10 @@
-import { Field, ObjectType } from '@nestjs/graphql';
-import { IsString, MinLength } from 'class-validator';
+import { Field, InputType, ObjectType } from '@nestjs/graphql';
+import { IsEnum, IsString, MinLength } from 'class-validator';
 import { CoreEntity } from 'src/common/entity/core.entity';
 import { Column, Entity, ManyToOne } from 'typeorm';
-import { Podcast } from './podcast.entity';
+import { Podcast, PodcastCategory } from './podcast.entity';
 
+@InputType('EpisodeInputType', { isAbstract: true })
 @ObjectType()
 @Entity()
 export class Episode extends CoreEntity {
@@ -13,10 +14,10 @@ export class Episode extends CoreEntity {
   @MinLength(4)
   title: string;
 
-  @Column()
-  @Field((type) => String)
-  @IsString()
-  category: string;
+  @Column({ type: 'enum', enum: PodcastCategory })
+  @Field((type) => PodcastCategory)
+  @IsEnum(PodcastCategory)
+  category: PodcastCategory;
 
   @ManyToOne((type) => Podcast, (podcast) => podcast.episodes)
   @Field((type) => Podcast)

@@ -4,14 +4,20 @@ import { CoreOutput } from 'src/common/dto/output.dto';
 import { User } from 'src/user/entity/user.entity';
 import { Repository } from 'typeorm';
 import {
+  CreateEpisodeInput,
+  CreateEpisodeOutput,
+} from './dto/create-episode.dto';
+import {
   CreatePodcastInput,
   CreatePodcastOutput,
 } from './dto/create-podcast.dto';
+import { EpisodeOutput, EpisodesOutput } from './dto/episode.dto';
 import { PodcastOutput, PodcastsOutput } from './dto/podcast.dto';
 import {
   UpdatePodcastInput,
   UpdatePodcastOutput,
 } from './dto/update-podcast.dto';
+import { Episode } from './entity/episode.entity';
 import { Podcast } from './entity/podcast.entity';
 
 @Injectable()
@@ -19,15 +25,17 @@ export class PodcastService {
   constructor(
     @InjectRepository(Podcast)
     private readonly podcastRepository: Repository<Podcast>,
+    @InjectRepository(Episode)
+    private readonly episodeRepository: Repository<Episode>,
   ) {}
 
   async createPodcast(
-    host: User,
+    creator: User,
     createPodcastInput: CreatePodcastInput,
   ): Promise<CreatePodcastOutput> {
     try {
       const podcast = this.podcastRepository.create(createPodcastInput);
-      podcast.owner = host;
+      podcast.owner = creator;
       podcast.episodes = [];
       const { id } = await this.podcastRepository.save(podcast);
       return { ok: true, id };
@@ -57,18 +65,26 @@ export class PodcastService {
     }
   }
 
+  async isValidAccess(user: User, id: number): Promise<PodcastOutput> {
+    try {
+      const { ok, error, podcast } = await this.getPodcast(id);
+      if (!ok) return { ok, error };
+      if (user.id !== podcast.owner.id) {
+        return { ok: false, error: 'Not Authorized' };
+      }
+      return { ok, podcast };
+    } catch (error) {
+      return { ok: false, error };
+    }
+  }
+
   async updatePodcast(
     user: User,
     { id, payload }: UpdatePodcastInput,
   ): Promise<UpdatePodcastOutput> {
     try {
-      const { ok, error, podcast } = await this.getPodcast(id);
-      if (!ok) {
-        return { ok, error };
-      }
-      if (user.id !== podcast.owner.id) {
-        return { ok: false, error: 'Not Authorized' };
-      }
+      const { ok, error, podcast } = await this.isValidAccess(user, id);
+      if (!ok) return { ok, error };
       if (payload.rating && (payload.rating < 0 || payload.rating > 5)) {
         return { ok: false, error: 'Rating must be between 0 and 5' };
       }
@@ -82,15 +98,49 @@ export class PodcastService {
 
   async deletePodcast(user: User, id: number): Promise<CoreOutput> {
     try {
-      const { ok, error, podcast } = await this.getPodcast(id);
+      const { ok, error } = await this.isValidAccess(user, id);
       if (!ok) {
         return { ok, error };
       }
-      if (user.id !== podcast.owner.id) {
-        return { ok: false, error: 'Not Authorized' };
-      }
       await this.podcastRepository.delete({ id });
       return { ok };
+    } catch (error) {
+      return { ok: false, error };
+    }
+  }
+
+  async createEpisode(
+    creator: User,
+    { podcastId, title, category }: CreateEpisodeInput,
+  ): Promise<CreateEpisodeOutput> {
+    try {
+      const { ok, error, podcast } = await this.isValidAccess(
+        creator,
+        podcastId,
+      );
+      if (!ok) return { ok, error };
+
+      const newEpisode = this.episodeRepository.create({ title, category });
+      newEpisode.podcast = podcast;
+      const { id } = await this.episodeRepository.save(newEpisode);
+      return { ok, id };
+    } catch (error) {
+      return { ok: false, error };
+    }
+  }
+
+  async getEpisodes(podcastId: number): Promise<EpisodesOutput> {
+    const { ok, error, podcast } = await this.getPodcast(podcastId);
+    return ok ? { ok, episodes: podcast.episodes } : { ok, error };
+  }
+
+  async getEpisode(id: number): Promise<EpisodeOutput> {
+    try {
+      const episode = await this.episodeRepository.findOne(id);
+      if (!episode) {
+        return { ok: false, error: `Episode ${id} Not Found` };
+      }
+      return { ok: true, episode };
     } catch (error) {
       return { ok: false, error };
     }

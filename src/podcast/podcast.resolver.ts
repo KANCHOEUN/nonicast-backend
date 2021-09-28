@@ -4,9 +4,14 @@ import { Role } from 'src/auth/role.decorator';
 import { CoreOutput } from 'src/common/dto/output.dto';
 import { User } from 'src/user/entity/user.entity';
 import {
+  CreateEpisodeInput,
+  CreateEpisodeOutput,
+} from './dto/create-episode.dto';
+import {
   CreatePodcastInput,
   CreatePodcastOutput,
 } from './dto/create-podcast.dto';
+import { EpisodeOutput, EpisodesOutput } from './dto/episode.dto';
 import { PodcastOutput, PodcastsOutput } from './dto/podcast.dto';
 import {
   UpdatePodcastInput,
@@ -65,15 +70,25 @@ export class PodcastResolver {
 
 @Resolver((of) => Episode)
 export class EpisodeResolver {
+  constructor(private readonly podcastService: PodcastService) {}
+
   @Role(['Host'])
-  @Mutation((returns) => Boolean)
-  createEpisode(): boolean {
-    return true;
+  @Mutation((returns) => CreateEpisodeOutput)
+  createEpisode(
+    @AuthUser() authUser: User,
+    @Args('input') createEpisodeInput: CreateEpisodeInput,
+  ): Promise<CreateEpisodeOutput> {
+    return this.podcastService.createEpisode(authUser, createEpisodeInput);
   }
 
-  @Query((returns) => Boolean)
-  getEpisodes(): boolean {
-    return true;
+  @Query((returns) => EpisodesOutput)
+  getEpisodes(@Args('id') podcastId: number): Promise<EpisodesOutput> {
+    return this.podcastService.getEpisodes(podcastId);
+  }
+
+  @Query((returns) => EpisodeOutput)
+  getEpisode(@Args('id') episodeId: number): Promise<EpisodeOutput> {
+    return this.podcastService.getEpisode(episodeId);
   }
 
   @Role(['Host'])
