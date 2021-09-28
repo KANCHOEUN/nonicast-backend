@@ -10,9 +10,11 @@ import { User } from './user/entity/user.entity';
 import { Episode } from './podcast/entity/episode.entity';
 import { JwtModule } from './jwt/jwt.module';
 import { JwtMiddleware } from './jwt/jwt.middleware';
+import { AuthModule } from './auth/auth.module';
 
 @Module({
   imports: [
+    AuthModule,
     ConfigModule.forRoot({
       isGlobal: true,
       envFilePath: '.env.dev',
