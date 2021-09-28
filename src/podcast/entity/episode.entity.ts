@@ -1,7 +1,7 @@
 import { Field, InputType, ObjectType } from '@nestjs/graphql';
 import { IsEnum, IsString, MinLength } from 'class-validator';
 import { CoreEntity } from 'src/common/entity/core.entity';
-import { Column, Entity, ManyToOne } from 'typeorm';
+import { Column, Entity, ManyToOne, RelationId } from 'typeorm';
 import { Podcast, PodcastCategory } from './podcast.entity';
 
 @InputType('EpisodeInputType', { isAbstract: true })
@@ -19,7 +19,9 @@ export class Episode extends CoreEntity {
   @IsEnum(PodcastCategory)
   category: PodcastCategory;
 
-  @ManyToOne((type) => Podcast, (podcast) => podcast.episodes)
+  @ManyToOne((type) => Podcast, (podcast) => podcast.episodes, {
+    onDelete: 'CASCADE',
+  })
   @Field((type) => Podcast)
   podcast: Podcast;
 }

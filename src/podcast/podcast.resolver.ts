@@ -14,6 +14,11 @@ import {
 import { EpisodeOutput, EpisodesOutput } from './dto/episode.dto';
 import { PodcastOutput, PodcastsOutput } from './dto/podcast.dto';
 import {
+  EpisodeInput,
+  UpdateEpisodeInput,
+  UpdateEpisodeOutput,
+} from './dto/update-episode.dto';
+import {
   UpdatePodcastInput,
   UpdatePodcastOutput,
 } from './dto/update-podcast.dto';
@@ -92,14 +97,20 @@ export class EpisodeResolver {
   }
 
   @Role(['Host'])
-  @Mutation((returns) => Boolean)
-  updateEpisode(): boolean {
-    return true;
+  @Mutation((returns) => UpdateEpisodeOutput)
+  updateEpisode(
+    @AuthUser() authUser: User,
+    @Args('input') updateEpisodeInput: UpdateEpisodeInput,
+  ): Promise<UpdateEpisodeOutput> {
+    return this.podcastService.updateEpisode(authUser, updateEpisodeInput);
   }
 
   @Role(['Host'])
-  @Mutation((returns) => Boolean)
-  deleteEpisode(): boolean {
-    return true;
+  @Mutation((returns) => CoreOutput)
+  deleteEpisode(
+    @AuthUser() authUser: User,
+    @Args('input') episodeInput: EpisodeInput,
+  ): Promise<CoreOutput> {
+    return this.podcastService.deleteEpisode(authUser, episodeInput);
   }
 }

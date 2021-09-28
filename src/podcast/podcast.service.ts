@@ -14,6 +14,11 @@ import {
 import { EpisodeOutput, EpisodesOutput } from './dto/episode.dto';
 import { PodcastOutput, PodcastsOutput } from './dto/podcast.dto';
 import {
+  EpisodeInput,
+  UpdateEpisodeInput,
+  UpdateEpisodeOutput,
+} from './dto/update-episode.dto';
+import {
   UpdatePodcastInput,
   UpdatePodcastOutput,
 } from './dto/update-podcast.dto';
@@ -141,6 +146,39 @@ export class PodcastService {
         return { ok: false, error: `Episode ${id} Not Found` };
       }
       return { ok: true, episode };
+    } catch (error) {
+      return { ok: false, error };
+    }
+  }
+
+  async updateEpisode(
+    user: User,
+    { podcastId, episodeId, payload }: UpdateEpisodeInput,
+  ): Promise<UpdateEpisodeOutput> {
+    try {
+      const { ok, error } = await this.isValidAccess(user, podcastId);
+      if (!ok) return { ok, error };
+
+      const episode = await this.episodeRepository.findOne(episodeId);
+      const newEpisode: Episode = { ...episode, ...payload };
+      await this.episodeRepository.save(newEpisode);
+      return { ok };
+    } catch (error) {
+      return { ok: false, error };
+    }
+  }
+
+  async deleteEpisode(
+    user: User,
+    { podcastId, episodeId }: EpisodeInput,
+  ): Promise<CoreOutput> {
+    try {
+      const { ok, error } = await this.isValidAccess(user, podcastId);
+      if (!ok) {
+        return { ok, error };
+      }
+      await this.episodeRepository.delete({ id: episodeId });
+      return { ok };
     } catch (error) {
       return { ok: false, error };
     }
