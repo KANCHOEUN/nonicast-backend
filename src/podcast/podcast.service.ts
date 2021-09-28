@@ -1,11 +1,17 @@
 import { Injectable } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
+import { CoreOutput } from 'src/common/dto/output.dto';
+import { User } from 'src/user/entity/user.entity';
 import { Repository } from 'typeorm';
 import {
   CreatePodcastInput,
   CreatePodcastOutput,
 } from './dto/create-podcast.dto';
 import { PodcastOutput, PodcastsOutput } from './dto/podcast.dto';
+import {
+  UpdatePodcastInput,
+  UpdatePodcastOutput,
+} from './dto/update-podcast.dto';
 import { Podcast } from './entity/podcast.entity';
 
 @Injectable()
@@ -16,11 +22,12 @@ export class PodcastService {
   ) {}
 
   async createPodcast(
-    // TODO: get user to save owner property
+    host: User,
     createPodcastInput: CreatePodcastInput,
   ): Promise<CreatePodcastOutput> {
     try {
       const podcast = this.podcastRepository.create(createPodcastInput);
+      podcast.owner = host;
       podcast.episodes = [];
       const { id } = await this.podcastRepository.save(podcast);
       return { ok: true, id };
@@ -45,6 +52,45 @@ export class PodcastService {
         return { ok: false, error: `Podcast ${id} Not Found` };
       }
       return { ok: true, podcast };
+    } catch (error) {
+      return { ok: false, error };
+    }
+  }
+
+  async updatePodcast(
+    user: User,
+    { id, payload }: UpdatePodcastInput,
+  ): Promise<UpdatePodcastOutput> {
+    try {
+      const { ok, error, podcast } = await this.getPodcast(id);
+      if (!ok) {
+        return { ok, error };
+      }
+      if (user.id !== podcast.owner.id) {
+        return { ok: false, error: 'Not Authorized' };
+      }
+      if (payload.rating && (payload.rating < 0 || payload.rating > 5)) {
+        return { ok: false, error: 'Rating must be between 0 and 5' };
+      }
+      const newPodcast: Podcast = { ...podcast, ...payload };
+      await this.podcastRepository.save(newPodcast);
+      return { ok };
+    } catch (error) {
+      return { ok: false, error };
+    }
+  }
+
+  async deletePodcast(user: User, id: number): Promise<CoreOutput> {
+    try {
+      const { ok, error, podcast } = await this.getPodcast(id);
+      if (!ok) {
+        return { ok, error };
+      }
+      if (user.id !== podcast.owner.id) {
+        return { ok: false, error: 'Not Authorized' };
+      }
+      await this.podcastRepository.delete({ id });
+      return { ok };
     } catch (error) {
       return { ok: false, error };
     }
