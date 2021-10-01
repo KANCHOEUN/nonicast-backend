@@ -2,7 +2,7 @@ import { Injectable } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { CoreOutput } from 'src/common/dto/output.dto';
 import { User } from 'src/user/entity/user.entity';
-import { Repository } from 'typeorm';
+import { Raw, Repository } from 'typeorm';
 import {
   CreateEpisodeInput,
   CreateEpisodeOutput,
@@ -13,7 +13,11 @@ import {
 } from './dto/create-podcast.dto';
 import { CreateReviewInput, CreateReviewOutput } from './dto/create-review.dto';
 import { EpisodeOutput, EpisodesOutput } from './dto/episode.dto';
-import { PodcastOutput, PodcastsOutput } from './dto/podcast.dto';
+import {
+  PodcastOutput,
+  PodcastsOutput,
+  SearchPodcastInput,
+} from './dto/podcast.dto';
 import {
   EpisodeInput,
   UpdateEpisodeInput,
@@ -117,6 +121,20 @@ export class PodcastService {
       }
       await this.podcastRepository.delete({ id });
       return { ok };
+    } catch (error) {
+      return { ok: false, error };
+    }
+  }
+
+  async searchPodcastByTitle({
+    query,
+  }: SearchPodcastInput): Promise<PodcastsOutput> {
+    try {
+      const [podcasts] = await this.podcastRepository.findAndCount({
+        where: { title: Raw((title) => `${title} ILIKE '%${query}%'`) },
+      });
+      if (!podcasts) return { ok: false, error: 'Podcast Not Found' };
+      return { ok: true, podcasts };
     } catch (error) {
       return { ok: false, error };
     }

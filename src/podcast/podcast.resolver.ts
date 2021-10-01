@@ -13,7 +13,11 @@ import {
 } from './dto/create-podcast.dto';
 import { CreateReviewInput, CreateReviewOutput } from './dto/create-review.dto';
 import { EpisodeOutput, EpisodesOutput } from './dto/episode.dto';
-import { PodcastOutput, PodcastsOutput } from './dto/podcast.dto';
+import {
+  PodcastOutput,
+  PodcastsOutput,
+  SearchPodcastInput,
+} from './dto/podcast.dto';
 import {
   EpisodeInput,
   UpdateEpisodeInput,
@@ -69,9 +73,11 @@ export class PodcastResolver {
     return this.podcastService.deletePodcast(authUser, id);
   }
 
-  @Query((returns) => Boolean)
-  searchPodcasts(): boolean {
-    return true;
+  @Query((returns) => PodcastsOutput)
+  searchPodcastByTitle(
+    @Args('input') searchPodcastInput: SearchPodcastInput,
+  ): Promise<PodcastsOutput> {
+    return this.podcastService.searchPodcastByTitle(searchPodcastInput);
   }
 }
 

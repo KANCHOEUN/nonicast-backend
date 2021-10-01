@@ -13,3 +13,9 @@ export class PodcastOutput extends CoreOutput {
   @Field((type) => Podcast, { nullable: true })
   podcast?: Podcast;
 }
+
+@InputType()
+export class SearchPodcastInput {
+  @Field((type) => String)
+  query: string;
+}
