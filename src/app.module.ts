@@ -12,6 +12,7 @@ import { JwtModule } from './jwt/jwt.module';
 import { JwtMiddleware } from './jwt/jwt.middleware';
 import { AuthModule } from './auth/auth.module';
 import { UploadsModule } from './uploads/uploads.module';
+import { Review } from './podcast/entity/review.entity';
 
 @Module({
   imports: [
@@ -49,7 +50,7 @@ import { UploadsModule } from './uploads/uploads.module';
       database: process.env.DB_NAME,
       synchronize: true,
       logging: true,
-      entities: [Podcast, Episode, User],
+      entities: [Podcast, Episode, User, Review],
     }),
     PodcastModule,
     UserModule,

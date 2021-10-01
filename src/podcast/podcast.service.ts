@@ -11,6 +11,7 @@ import {
   CreatePodcastInput,
   CreatePodcastOutput,
 } from './dto/create-podcast.dto';
+import { CreateReviewInput, CreateReviewOutput } from './dto/create-review.dto';
 import { EpisodeOutput, EpisodesOutput } from './dto/episode.dto';
 import { PodcastOutput, PodcastsOutput } from './dto/podcast.dto';
 import {
@@ -24,6 +25,7 @@ import {
 } from './dto/update-podcast.dto';
 import { Episode } from './entity/episode.entity';
 import { Podcast } from './entity/podcast.entity';
+import { Review } from './entity/review.entity';
 
 @Injectable()
 export class PodcastService {
@@ -32,6 +34,8 @@ export class PodcastService {
     private readonly podcastRepository: Repository<Podcast>,
     @InjectRepository(Episode)
     private readonly episodeRepository: Repository<Episode>,
+    @InjectRepository(Review)
+    private readonly reviewRepository: Repository<Review>,
   ) {}
 
   async createPodcast(
@@ -63,7 +67,7 @@ export class PodcastService {
   async getPodcast(id: number): Promise<PodcastOutput> {
     try {
       const podcast = await this.podcastRepository.findOne(id, {
-        relations: ['owner'],
+        relations: ['owner', 'subscribers'],
       });
       if (!podcast) {
         return { ok: false, error: `Podcast ${id} Not Found` };
@@ -183,6 +187,23 @@ export class PodcastService {
       }
       await this.episodeRepository.delete({ id: episodeId });
       return { ok };
+    } catch (error) {
+      return { ok: false, error };
+    }
+  }
+
+  async createReview(
+    creator: User,
+    { podcastId, content }: CreateReviewInput,
+  ): Promise<CreateReviewOutput> {
+    try {
+      const { ok, error, podcast } = await this.getPodcast(podcastId);
+      if (!ok) return { ok: false, error };
+      const review = this.reviewRepository.create({ content });
+      review.podcast = podcast;
+      review.creator = creator;
+      await this.reviewRepository.save(review);
+      return { ok: true };
     } catch (error) {
       return { ok: false, error };
     }

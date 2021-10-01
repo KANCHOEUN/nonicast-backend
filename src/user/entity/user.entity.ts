@@ -18,6 +18,7 @@ import {
   OneToMany,
 } from 'typeorm';
 import { InternalServerErrorException } from '@nestjs/common';
+import { Review } from 'src/podcast/entity/review.entity';
 
 export enum UserRole {
   Listener = 'Listener',
@@ -55,6 +56,10 @@ export class User extends CoreEntity {
   })
   @JoinTable()
   subscriptions: Podcast[];
+
+  @Field((type) => [Review])
+  @OneToMany(() => Review, (review) => review.creator, { eager: true })
+  reviews: Review[];
 
   @BeforeInsert()
   @BeforeUpdate()

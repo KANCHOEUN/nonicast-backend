@@ -11,6 +11,7 @@ import {
   CreatePodcastInput,
   CreatePodcastOutput,
 } from './dto/create-podcast.dto';
+import { CreateReviewInput, CreateReviewOutput } from './dto/create-review.dto';
 import { EpisodeOutput, EpisodesOutput } from './dto/episode.dto';
 import { PodcastOutput, PodcastsOutput } from './dto/podcast.dto';
 import {
@@ -24,6 +25,7 @@ import {
 } from './dto/update-podcast.dto';
 import { Episode } from './entity/episode.entity';
 import { Podcast } from './entity/podcast.entity';
+import { Review } from './entity/review.entity';
 import { PodcastService } from './podcast.service';
 
 @Resolver((of) => Podcast)
@@ -113,4 +115,20 @@ export class EpisodeResolver {
   ): Promise<CoreOutput> {
     return this.podcastService.deleteEpisode(authUser, episodeInput);
   }
+}
+
+@Resolver((of) => Review)
+export class ReviewResolver {
+  constructor(private readonly podcastService: PodcastService) {}
+
+  @Mutation(() => CreateReviewOutput)
+  @Role(['Listener'])
+  createReview(
+    @AuthUser() authUser: User,
+    @Args('input') createReviewInput: CreateReviewInput,
+  ): Promise<CreateReviewOutput> {
+    return this.podcastService.createReview(authUser, createReviewInput);
+  }
+
+  // TODO: Delete Review
 }

@@ -5,7 +5,7 @@ import { Episode } from '../entity/episode.entity';
 @InputType()
 export class CreateEpisodeInput extends PickType(Episode, [
   'title',
-  'category',
+  'fileUrl',
 ]) {
   @Field((type) => Number)
   podcastId: number;

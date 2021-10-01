@@ -17,6 +17,7 @@ import { CoreEntity } from 'src/common/entity/core.entity';
 import { User } from 'src/user/entity/user.entity';
 import { Column, Entity, ManyToMany, ManyToOne, OneToMany } from 'typeorm';
 import { Episode } from './episode.entity';
+import { Review } from './review.entity';
 
 export enum PodcastCategory {
   Arts = 'Arts',
@@ -84,4 +85,8 @@ export class Podcast extends CoreEntity {
   @Field((type) => [User])
   @ManyToMany(() => User, (user) => user.subscriptions)
   subscribers: User[];
+
+  @Field((type) => [Review])
+  @OneToMany(() => Review, (review) => review.podcast, { eager: true })
+  reviews: Review[];
 }

@@ -19,7 +19,7 @@ export class EpisodeInput {
 
 @InputType()
 export class UpdateEpisodePayload extends PartialType(
-  PickType(Episode, ['title', 'category']),
+  PickType(Episode, ['title', 'fileUrl']),
 ) {}
 
 @InputType()
