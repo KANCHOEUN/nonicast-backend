@@ -19,3 +19,9 @@ export class SearchPodcastInput {
   @Field((type) => String)
   query: string;
 }
+
+@ObjectType()
+export class SearchPodcastOutput extends PodcastsOutput {
+  @Field((type) => Number)
+  resultsCount?: number;
+}

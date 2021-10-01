@@ -17,6 +17,7 @@ import {
   PodcastOutput,
   PodcastsOutput,
   SearchPodcastInput,
+  SearchPodcastOutput,
 } from './dto/podcast.dto';
 import {
   EpisodeInput,
@@ -128,13 +129,14 @@ export class PodcastService {
 
   async searchPodcastByTitle({
     query,
-  }: SearchPodcastInput): Promise<PodcastsOutput> {
+  }: SearchPodcastInput): Promise<SearchPodcastOutput> {
     try {
-      const [podcasts] = await this.podcastRepository.findAndCount({
-        where: { title: Raw((title) => `${title} ILIKE '%${query}%'`) },
-      });
+      const [podcasts, resultsCount] =
+        await this.podcastRepository.findAndCount({
+          where: { title: Raw((title) => `${title} ILIKE '%${query}%'`) },
+        });
       if (!podcasts) return { ok: false, error: 'Podcast Not Found' };
-      return { ok: true, podcasts };
+      return { ok: true, podcasts, resultsCount };
     } catch (error) {
       return { ok: false, error };
     }

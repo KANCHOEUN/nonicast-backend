@@ -17,6 +17,7 @@ import {
   PodcastOutput,
   PodcastsOutput,
   SearchPodcastInput,
+  SearchPodcastOutput,
 } from './dto/podcast.dto';
 import {
   EpisodeInput,
@@ -73,10 +74,10 @@ export class PodcastResolver {
     return this.podcastService.deletePodcast(authUser, id);
   }
 
-  @Query((returns) => PodcastsOutput)
+  @Query((returns) => SearchPodcastOutput)
   searchPodcastByTitle(
     @Args('input') searchPodcastInput: SearchPodcastInput,
-  ): Promise<PodcastsOutput> {
+  ): Promise<SearchPodcastOutput> {
     return this.podcastService.searchPodcastByTitle(searchPodcastInput);
   }
 }
