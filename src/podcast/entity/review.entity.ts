@@ -17,15 +17,14 @@ export class Review extends CoreEntity {
   @Field((type) => Podcast)
   @ManyToOne(() => Podcast, (podcast) => podcast.reviews, {
     onDelete: 'CASCADE',
+    eager: true,
   })
   podcast: Podcast;
-
-  @RelationId((review: Review) => review.podcast)
-  podcastId: number;
 
   @Field((type) => User)
   @ManyToOne(() => User, (user) => user.reviews, {
     onDelete: 'CASCADE',
+    eager: true,
   })
   creator: User;
 }

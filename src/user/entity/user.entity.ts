@@ -58,7 +58,7 @@ export class User extends CoreEntity {
   subscriptions: Podcast[];
 
   @Field((type) => [Review])
-  @OneToMany(() => Review, (review) => review.creator, { eager: true })
+  @OneToMany(() => Review, (review) => review.creator)
   reviews: Review[];
 
   @BeforeInsert()

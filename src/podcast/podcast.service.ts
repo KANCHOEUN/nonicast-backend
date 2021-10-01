@@ -67,7 +67,7 @@ export class PodcastService {
   async getPodcast(id: number): Promise<PodcastOutput> {
     try {
       const podcast = await this.podcastRepository.findOne(id, {
-        relations: ['owner', 'subscribers'],
+        relations: ['owner', 'subscribers', 'reviews'],
       });
       if (!podcast) {
         return { ok: false, error: `Podcast ${id} Not Found` };

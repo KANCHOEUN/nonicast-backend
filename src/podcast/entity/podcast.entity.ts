@@ -87,6 +87,6 @@ export class Podcast extends CoreEntity {
   subscribers: User[];
 
   @Field((type) => [Review])
-  @OneToMany(() => Review, (review) => review.podcast, { eager: true })
+  @OneToMany(() => Review, (review) => review.podcast)
   reviews: Review[];
 }
