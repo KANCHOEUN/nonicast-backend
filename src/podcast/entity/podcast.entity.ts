@@ -46,7 +46,7 @@ export class Podcast extends CoreEntity {
   title: string;
 
   @Column()
-  @Field((type) => String, { nullable: true })
+  @Field((type) => String)
   @IsString()
   coverImg: string;
 
@@ -71,7 +71,6 @@ export class Podcast extends CoreEntity {
   @Field((type) => User)
   @ManyToOne((type) => User, (user) => user.podcasts, {
     onDelete: 'CASCADE',
-    eager: true,
   })
   owner: User;
 

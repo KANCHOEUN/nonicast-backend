@@ -51,7 +51,9 @@ export class PodcastService {
 
   async getPodcasts(): Promise<PodcastsOutput> {
     try {
-      const podcasts = await this.podcastRepository.find();
+      const podcasts = await this.podcastRepository.find({
+        relations: ['owner'],
+      });
       return { ok: true, podcasts };
     } catch (error) {
       return { ok: false, error };
@@ -60,7 +62,9 @@ export class PodcastService {
 
   async getPodcast(id: number): Promise<PodcastOutput> {
     try {
-      const podcast = await this.podcastRepository.findOne(id);
+      const podcast = await this.podcastRepository.findOne(id, {
+        relations: ['owner'],
+      });
       if (!podcast) {
         return { ok: false, error: `Podcast ${id} Not Found` };
       }

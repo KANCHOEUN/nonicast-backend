@@ -38,7 +38,7 @@ export class User extends CoreEntity {
   role: UserRole;
 
   @Field((type) => [Podcast])
-  @OneToMany((type) => Podcast, (podcast) => podcast.owner)
+  @OneToMany((type) => Podcast, (podcast) => podcast.owner, { eager: true })
   podcasts: Podcast[];
 
   @BeforeInsert()

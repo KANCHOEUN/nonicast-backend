@@ -11,6 +11,7 @@ import { Episode } from './podcast/entity/episode.entity';
 import { JwtModule } from './jwt/jwt.module';
 import { JwtMiddleware } from './jwt/jwt.middleware';
 import { AuthModule } from './auth/auth.module';
+import { UploadsModule } from './uploads/uploads.module';
 
 @Module({
   imports: [
@@ -26,6 +27,8 @@ import { AuthModule } from './auth/auth.module';
         DB_USERNAME: Joi.string().required(),
         DB_PASSWORD: Joi.string().required(),
         DB_NAME: Joi.string().required(),
+        ACCESS_KEY_ID: Joi.string().required(),
+        SECRET_ACCESS_KEY: Joi.string().required(),
       }),
     }),
     GraphQLModule.forRoot({
@@ -50,6 +53,7 @@ import { AuthModule } from './auth/auth.module';
     }),
     PodcastModule,
     UserModule,
+    UploadsModule,
   ],
   controllers: [],
   providers: [],

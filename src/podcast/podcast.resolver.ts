@@ -44,7 +44,7 @@ export class PodcastResolver {
     return this.podcastService.getPodcasts();
   }
 
-  @Query((returns) => Boolean)
+  @Query((returns) => PodcastOutput)
   getPodcast(@Args('id') id: number): Promise<PodcastOutput> {
     return this.podcastService.getPodcast(id);
   }
