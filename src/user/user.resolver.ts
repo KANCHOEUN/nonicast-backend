@@ -1,11 +1,17 @@
 import { Args, Mutation, Query, Resolver } from '@nestjs/graphql';
 import { AuthUser } from 'src/auth/auth-user.decorator';
 import { Role } from 'src/auth/role.decorator';
+import { CoreOutput } from 'src/common/dto/output.dto';
 import {
   CreateAccountInput,
   CreateAccountOutput,
 } from './dto/create-account.dto';
 import { LoginInput, LoginOutput } from './dto/login.dto';
+import { SubscribeInput } from './dto/subscribe.dto';
+import {
+  UpdateProfileInput,
+  UpdateProfileOutput,
+} from './dto/update-profile.dto';
 import { UserOutput } from './dto/user.dto';
 import { User } from './entity/user.entity';
 import { UserService } from './user.service';
@@ -25,39 +31,33 @@ export class UserResolver {
     return this.userService.login(loginInput);
   }
 
-  @Query((returns) => Boolean)
   @Role(['Any'])
+  @Query((returns) => User)
   me(@AuthUser() authUser: User): User {
     return authUser;
   }
 
-  @Query((returns) => UserOutput)
   @Role(['Any'])
+  @Query((returns) => UserOutput)
   getProfile(@Args('userId') userId: number): Promise<UserOutput> {
     return this.userService.findById(userId);
   }
 
   @Role(['Any'])
-  @Mutation((returns) => Boolean)
-  updateProfile(): boolean {
-    return true;
+  @Mutation((returns) => UpdateProfileOutput)
+  updateProfile(
+    @AuthUser() authUser: User,
+    @Args('input') updateProfileInput: UpdateProfileInput,
+  ): Promise<UpdateProfileOutput> {
+    return this.userService.updateProfile(authUser.id, updateProfileInput);
   }
 
   @Role(['Listener'])
-  @Mutation((returns) => Boolean)
-  toggleSubscribe(): boolean {
-    return true;
-  }
-
-  @Role(['Listener'])
-  @Query((returns) => Boolean)
-  getSubscriptions(): boolean {
-    return true;
-  }
-
-  @Role(['Listener'])
-  @Mutation((returns) => Boolean)
-  markEpisodeAsPlayed(): boolean {
-    return true;
+  @Mutation((returns) => CoreOutput)
+  toggleSubscribe(
+    @AuthUser() authUser: User,
+    @Args('input') toggleSubscribeInput: SubscribeInput,
+  ): Promise<CoreOutput> {
+    return this.userService.toggleSubscribe(authUser, toggleSubscribeInput);
   }
 }

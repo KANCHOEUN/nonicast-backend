@@ -120,7 +120,7 @@ export class PodcastService {
 
   async createEpisode(
     creator: User,
-    { podcastId, title, category }: CreateEpisodeInput,
+    { podcastId, title, fileUrl }: CreateEpisodeInput,
   ): Promise<CreateEpisodeOutput> {
     try {
       const { ok, error, podcast } = await this.isValidAccess(
@@ -129,7 +129,7 @@ export class PodcastService {
       );
       if (!ok) return { ok, error };
 
-      const newEpisode = this.episodeRepository.create({ title, category });
+      const newEpisode = this.episodeRepository.create({ title, fileUrl });
       newEpisode.podcast = podcast;
       const { id } = await this.episodeRepository.save(newEpisode);
       return { ok, id };

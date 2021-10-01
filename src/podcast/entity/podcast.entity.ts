@@ -15,7 +15,7 @@ import {
 } from 'class-validator';
 import { CoreEntity } from 'src/common/entity/core.entity';
 import { User } from 'src/user/entity/user.entity';
-import { Column, Entity, ManyToOne, OneToMany } from 'typeorm';
+import { Column, Entity, ManyToMany, ManyToOne, OneToMany } from 'typeorm';
 import { Episode } from './episode.entity';
 
 export enum PodcastCategory {
@@ -80,4 +80,8 @@ export class Podcast extends CoreEntity {
     eager: true,
   })
   episodes: Episode[];
+
+  @Field((type) => [User])
+  @ManyToMany(() => User, (user) => user.subscriptions)
+  subscribers: User[];
 }

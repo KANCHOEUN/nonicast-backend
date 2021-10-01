@@ -8,7 +8,15 @@ import {
 import { IsEmail, IsEnum, IsString } from 'class-validator';
 import { CoreEntity } from 'src/common/entity/core.entity';
 import { Podcast } from 'src/podcast/entity/podcast.entity';
-import { BeforeInsert, Column, Entity, OneToMany } from 'typeorm';
+import {
+  BeforeInsert,
+  BeforeUpdate,
+  Column,
+  Entity,
+  JoinTable,
+  ManyToMany,
+  OneToMany,
+} from 'typeorm';
 import { InternalServerErrorException } from '@nestjs/common';
 
 export enum UserRole {
@@ -41,7 +49,15 @@ export class User extends CoreEntity {
   @OneToMany((type) => Podcast, (podcast) => podcast.owner, { eager: true })
   podcasts: Podcast[];
 
+  @Field((type) => [Podcast])
+  @ManyToMany((type) => Podcast, (podcast) => podcast.subscribers, {
+    eager: true,
+  })
+  @JoinTable()
+  subscriptions: Podcast[];
+
   @BeforeInsert()
+  @BeforeUpdate()
   async hashPassword(): Promise<void> {
     if (this.password) {
       try {
